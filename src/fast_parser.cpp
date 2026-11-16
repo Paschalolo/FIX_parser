@@ -28,9 +28,6 @@ class alignas(64) FIX_Payload_Parser{
 	
 };
 
-enum FIX_VERSION  : std::uint8_t{
-	FIX_V4_2 , FIX_V4_4
-};
 struct alignas(64) parsed_data{
 	std::uint64_t m_price ;
 	unsigned char m_sendercomp_id[4] ;
@@ -40,7 +37,6 @@ struct alignas(64) parsed_data{
 	std::uint16_t m_symbol ;
 	std::uint8_t m_side;
 	std::uint8_t m_order_type;
-	std::uint8_t m_fix_version;
 	std::uint8_t m_msg_type ;
 };
 
