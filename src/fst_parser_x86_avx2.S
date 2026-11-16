@@ -17,9 +17,12 @@
 SECTION .data 
 SECTION .bss
 SECTION .text 
-; int parse_impl(void* payload_addr , void* parsed_addr , size_t sz );
-global parse_impl 
+; int parse_impl_singleline(void* payload_addr , void* parsed_addr , size_t sz );
+global parse_impl_singleline 
 ; parseimpl(void* py_addr , void* parsed_addr , size_t sz ){
+; There should be startegy for single line 
+; There should be for multiple reads 
+; NOTE : singel line is useful 
 	; int count = 0 ; 
 	; int amoutn = 0 
 	; while(sz >= count ){
@@ -31,7 +34,9 @@ global parse_impl
 		; size sz_inner = convertTointegrer(py_addr[coutn]); 
 		; int k = 0 ; 
 		; while(k < sz_inner){ // this can be converted into a straight loop that evrthing is found at once 
-
+			;find next | and then use that as incrementing to saving
+			;if unknown value just skip parsing it 
+			; until loop is finshed 
 		; }
 	; }
 ;}

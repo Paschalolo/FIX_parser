@@ -8,8 +8,12 @@
 #include <cstdint>
 
 
-extern "C" int parse_impl(void* payload_addr , void* parsed_addr , size_t sz );
-
+#if defined (SINGLE_FIX_PAYLOAD)
+extern "C" int parse_impl_singleline(void* payload_addr , void* parsed_addr , size_t sz );
+#endif 
+#if defined (MULTI_FIX_PAYLOAD)
+extern "C" int parse_impl_multiline(void* payload_addr , void* parsed_addr , size_t sz );
+#endif 
 
 class alignas(64) FIX_Payload_Parser{
 	private : 
@@ -19,9 +23,16 @@ class alignas(64) FIX_Payload_Parser{
 	public:
 		FIX_Payload_Parser(void* payload_addr , size_t sz) noexcept;
 		~FIX_Payload_Parser();
+		#if defined (SINGLE_FIX_PAYLOAD)
 		inline __attribute__((always_inline)) int  parse(){
-			return parse_impl(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
+			return parse_impl_singleline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
 		}
+		#endif 
+		#if defined (MULTI_FIX_PAYLOAD)
+		inline __attribute__((always_inline)) int  parse_multiline(){
+			return parse_impl_multiline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
+		}
+		#endif 
 		void* get_parsed_addr() const {
 			return m_parsed_addr_;
 		}
