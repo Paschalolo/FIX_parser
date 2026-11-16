@@ -21,12 +21,18 @@ SECTION .text
 global parse_impl 
 ; parseimpl(void* py_addr , void* parsed_addr , size_t sz ){
 	; int count = 0 ; 
-	
+	; int amoutn = 0 
 	; while(sz >= count ){
-		; if(py_addr[count] != '8' ){
+	; for now alwasy assume sttuff is aligned topgether 
+		; if(py_addr[count] != '8' ){ /* could use a cmp with fix and 8 
 			; find_start_point();
 		;}
+		; count = count + 13
+		; size sz_inner = convertTointegrer(py_addr[coutn]); 
+		; int k = 0 ; 
+		; while(k < sz_inner){ // this can be converted into a straight loop that evrthing is found at once 
 
+		; }
 	; }
 ;}
 parse_impl : 
