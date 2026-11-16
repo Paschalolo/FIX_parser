@@ -1,0 +1,6 @@
+
+*.json 
+bin/
+text/
+ctags/
+*.o
