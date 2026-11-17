@@ -66,11 +66,40 @@ parse_impl_single :
 
 	add rcx , 1 ; add 1 to the shift 
 
+	sub r10 , 0x3030303030303030 ; mask to bring out only characters
+
 	shl r9 , cl ; shift after the 1st 0x01 mask 
 
 	lzcnt rcx , r9 ; shift after 2nd 0x01 mask
 	
-	shr r10 , cl ; seperate the the size alone 
+	 ; shr r10 , cl ; seperate the the size alone as stand alone single digit ascii 
+
+	;=================== changing to count length ================== ; delete this later
+; EVEN 
+	mov r13 , r10 ; take a copy of r10 the digits i.e [ 1 , 2 , 3, 4, 0 , 0 ,0 ,0 ] 
+	mov r12 , 0x00FF00FF00FF00FF ; mask for even bytes 
+	and r13 , r12 ; mask to onyl get even positions 
+
+; ODD 
+	shr r10 ,  8 ; mOve postions to even address 
+	and r10 , r12 ; mask for only the even position  
+ ; Multiply the tens by 10
+	lea r13 , [r13 + (r13 * 4)] 
+	lea r13 , [r10 + (r13*2)]
+
+	; Multiply now by 100
+	mov r10 , r13 
+	mov r12 , 0x0000FFFF0000FFFF
+	and r13 , r12 3
+
+; oDD 
+	shr r10 , 16 
+	and r10 , r12 
+	; mutiply by 100 
+	imul  r13 , r13 , 100
+	add r10 , r13 
+	bswap r10 , r10 ; correct the positioning of the value in order to us e it  
+
 
 	
 	
