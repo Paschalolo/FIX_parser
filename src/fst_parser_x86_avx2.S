@@ -14,15 +14,17 @@
 ;  note of function 
 
 
-SECTION .data 
+SECTION .data
+	
 SECTION .bss
 SECTION .text 
-; int parse_impl_singleline(void* payload_addr , void* parsed_addr , size_t sz );
+; int parse_impl_singleline(void* payload_addr , void* parsed_addr , unsigedn char* my_target_id  , size_t sz );
 ; NOTE : on global_parse_impL_singleline  ; cannot be less than a cache lien DONE for uptimal loads and reads 
 global parse_impl_singleline 
 ; parseimpl(void* py_addr , void* parsed_addr , size_t sz ){
 ; There should be startegy for single line 
 ; There should be for multiple reads 
+
 ; NOTE : singel line is useful 
 	; int count = 0 ; 
 	; int amoutn = 0 
@@ -41,10 +43,41 @@ global parse_impl_singleline
 		; }
 	; }
 ;}
-parse_impl : 
-; starting base model implentation 
-	vmovdqa ymm0  , [rdi] ; move first 32 bytes
+parse_impl_single : 
+; starting base model implentation
+	mov rbp , rsp 
+	sub rsp , 16 
+	mov rcx , r11 ; moving rcx to r11 
+	; IMplement to check for start of 8=FIX...
+	; Note assuming the offset has been determinged here of 8= FIX 
+	mov qword [rsp] , 0x0101010101010101 ; Get mask ready
 
+	vpbroadcastq ymm0 , qword[rsp]; mov mask to ymm0 
+
+	mov r10 , qword[rdi+12] ; moving the size to r10
+
+	vmovdqa ymm1 , [rdi] ; move first 32 bytes
+
+	vpcmpeqb ymm2 , ymm1 , ymm0 ; compare bytes to find start of header (0x01)
+
+	vpmovmskb r9 , ymm2 ; mov mask position to r9 
+
+	lzcnt rcx , r9 ; count the number of leaidng zero bits of the mask 0x01 
+
+	add rcx , 1 ; add 1 to the shift 
+
+	shl r9 , cl ; shift after the 1st 0x01 mask 
+
+	lzcnt rcx , r9 ; shift after 2nd 0x01 mask
+	
+	shr r10 , cl ; seperate the the size alone 
+
+	
+	
 ; in case th e 8 byte are lost 
 resync_scan : 
+end : 
+	add rsp , 16
+	mov rsp , rbp
+	ret 
 section .note.GNU-stack noalloc noexec nowrite progbits
