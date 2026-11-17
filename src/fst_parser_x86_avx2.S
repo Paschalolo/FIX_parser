@@ -44,6 +44,16 @@ global parse_impl_singleline
 	; }
 ;}
 
+; input_buf -> rdi , output_buf -> rsi  ,  sz -> rdx 
+parse_impl_singleline1:
+	mov rbp , rsp 
+	sub rsp , 16 
+	mov qword[rsp] , 0x0101010101010101
+	vpbroadcastq ymm0 , qword[rsp] 
+
+	add rsp , 16 
+	mpv rsp , rbp 
+	ret 
 ; This implementation will be used int hte multi line file 
 parse_impl_single : 
 ; starting base model implentation
@@ -92,7 +102,7 @@ parse_impl_single :
 	; Multiply now by 100
 	mov r10 , r13 
 	mov r12 , 0x0000FFFF0000FFFF
-	and r13 , r12 3
+	and r13 , r12 
 
 ; oDD 
 	shr r10 , 16 
@@ -103,13 +113,26 @@ parse_impl_single :
 	bswap r10 , r10 ; correct the positioning of the value in order to us e it  
 
 	; r10 contians size 
+	;==== align to a 64 bytes 
+	cmp r10 , 490
+	jg cold_path_large 
 
-		
-	
+one_line: 
+two_line: 
+three_line : 
+four_line: 
+five_lien: 
+six_line : 
+seven_line: 
+eight_line:
 ; in case th e 8 byte are lost 
 resync_scan : 
 end : 
 	add rsp , 16
 	mov rsp , rbp
+	ret 
+
+cold_path_large : 
+	mov rax , -1 
 	ret 
 section .note.GNU-stack noalloc noexec nowrite progbits
