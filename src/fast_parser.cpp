@@ -9,7 +9,7 @@
 
 
 #if defined (SINGLE_FIX_PAYLOAD)
-extern "C" int parse_impl_singleline(void* payload_addr , void* parsed_addr , size_t sz );
+extern "C" int parse_impl_singleline(void* payload_addr , void* parsed_addr , unsigned char*  my_target_id, size_t sz );
 #endif 
 #if defined (MULTI_FIX_PAYLOAD)
 extern "C" int parse_impl_multiline(void* payload_addr , void* parsed_addr , size_t sz );
@@ -19,9 +19,10 @@ class alignas(64) FIX_Payload_Parser{
 	private : 
 		void* m_payload_addr_; 
 		void* m_parsed_addr_ ;
+		unsigned char* m_my_target_id;
 		size_t m_parsed_sz_;
 	public:
-		FIX_Payload_Parser(void* payload_addr , size_t sz) noexcept;
+		FIX_Payload_Parser(void* payload_addr ,unsigned char* t_id , size_t sz) noexcept;
 		~FIX_Payload_Parser();
 		#if defined (SINGLE_FIX_PAYLOAD)
 		inline __attribute__((always_inline)) int  parse(){
@@ -65,7 +66,7 @@ __attribute__((noinline , cold)) void fail_now(){
 
 
 
-FIX_Payload_Parser::FIX_Payload_Parser(void* payload_addr , size_t sz ) noexcept{
+FIX_Payload_Parser::FIX_Payload_Parser(void* payload_addr , unsigned char* t_id , size_t sz ) noexcept{
 	if(payload_addr == nullptr || (sz == 0) ){
 		fail_now();
 	}
@@ -86,6 +87,7 @@ FIX_Payload_Parser::FIX_Payload_Parser(void* payload_addr , size_t sz ) noexcept
 	}
 	m_parsed_sz_ = possible_struct_count ; 
 	m_payload_addr_ = reinterpret_cast<std::uint8_t*>(ptr) + 64ULL ;
+	m_my_target_id = t_id;
 	volatile int a ;
 	// This is to zero out the cache ready for hot loop 
 	for(size_t i{0} ; i < possible_struct_count ; i += (2ULL * 1024ULL * 1024ULL)){

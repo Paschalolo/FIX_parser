@@ -18,6 +18,7 @@ SECTION .data
 SECTION .bss
 SECTION .text 
 ; int parse_impl_singleline(void* payload_addr , void* parsed_addr , size_t sz );
+; NOTE : on global_parse_impL_singleline  ; cannot be less than a cache lien DONE for uptimal loads and reads 
 global parse_impl_singleline 
 ; parseimpl(void* py_addr , void* parsed_addr , size_t sz ){
 ; There should be startegy for single line 
