@@ -8,12 +8,8 @@
 #include <cstdint>
 
 
-#if defined (SINGLE_FIX_PAYLOAD)
-extern "C" int parse_impl_singleline(void* payload_addr , void* parsed_addr , unsigned char*  my_target_id, size_t sz );
-#endif 
-#if defined (MULTI_FIX_PAYLOAD)
-extern "C" int parse_impl_multiline(void* payload_addr , void* parsed_addr , size_t sz );
-#endif 
+extern "C" int parse_impl_singleline(void* __restrict__ payload_addr , void* __restrict__ parsed_addr , size_t sz );
+extern "C" int parse_impl_multiline(void* __restrict__  payload_addr , void* __restrict__  parsed_addr , size_t sz );
 
 class alignas(64) FIX_Payload_Parser{
 	private : 
@@ -24,16 +20,13 @@ class alignas(64) FIX_Payload_Parser{
 	public:
 		FIX_Payload_Parser(void* payload_addr ,unsigned char* t_id , size_t sz) noexcept;
 		~FIX_Payload_Parser();
-		#if defined (SINGLE_FIX_PAYLOAD)
+
 		inline __attribute__((always_inline)) int  parse(){
 			return parse_impl_singleline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
 		}
-		#endif 
-		#if defined (MULTI_FIX_PAYLOAD)
 		inline __attribute__((always_inline)) int  parse_multiline(){
 			return parse_impl_multiline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
 		}
-		#endif 
 		void* get_parsed_addr() const {
 			return m_parsed_addr_;
 		}

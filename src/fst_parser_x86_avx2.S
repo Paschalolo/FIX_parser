@@ -43,6 +43,8 @@ global parse_impl_singleline
 		; }
 	; }
 ;}
+
+; This implementation will be used int hte multi line file 
 parse_impl_single : 
 ; starting base model implentation
 	mov rbp , rsp 
@@ -100,8 +102,9 @@ parse_impl_single :
 	add r10 , r13 
 	bswap r10 , r10 ; correct the positioning of the value in order to us e it  
 
+	; r10 contians size 
 
-	
+		
 	
 ; in case th e 8 byte are lost 
 resync_scan : 
