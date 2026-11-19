@@ -167,7 +167,6 @@ one_line:
 	; extracting for 35 
 	vpbroadcastb ymm5  , byte[rsp + 6 ] ; hold mask  0x33
 	vpbroadcastb ymm6 , byte[rsp + 7]; Hold mask  0x35
-	vpbroadcastb ymm7 , byte[rsp + 1] ; Holds mask 0x3D
 	
 	vpcmpeqb ymm12 , ymm1 , ymm5  
 	vpcmpeqb ymm13 , ymm1 , ymm6 
@@ -184,11 +183,37 @@ one_line:
 	vpsubb ymm12 , ymm1 , ymm5
 	vpand ymm12 , ymm15  , ymm12 ; Answer is in the ymm12 
 
-	; extract the position for 49 56 and =
+	; extract the position for 49 56 and = this are the string extarction 
 	; free register ymmm10 - ymm15 
-	mov qword[rsp] , 0x0000003D36353934 ; move mask to it 
-	vpbroadcastb 
+	mov qword[rsp] , 0x0000003D36353934 ; move mask to it
+	
+	vpbroadcastb ymm5 , byte[rsp] ; move masj 0x34 
+	vpbroadcastb ymm6 , byte[rsp+ 1] ; move masj 0x39 
+	
+	vpcmpeqb ymm12 ,  ymm1 , ymm5
+	vpcmpeqb ymm13 , ymm1 , ymm6
 
+	vpslldq ymm12 , ymm12 , 2 ; shift mask 34 by 2 
+	vpslldq ymm13 , ymm13 ,  ; shift mask 39 by 1
+	
+	vpand ymm13 , ymm13 , ymm12 
+	vpand ymm15 , ymm14 , ymm13 ; mask with = ymm14 contains position with it
+
+
+	vpbroadcastb ymm5 , byte[rsp + 2 ] ; move masj 0x35 
+	vpbroadcastb ymm6 , byte[rsp + 3 ] ; move masj 0x36
+
+	vpcmpeqb ymm12 ,  ymm1 , ymm5
+	vpcmpeqb ymm13 , ymm1 , ymm6
+
+	vpslldq ymm12 , ymm12 , 2 ; shift mask 35 by 2 
+	vpslldq ymm13 , ymm13 ,  ; shift mask 36 by 1
+
+	vpand ymm13 , ymm13 , ymm12 
+	vpand ymm13 , ymm13 , ymm14 ; ymm14 contains the = mask
+	vpor ymm15 , ymm13 , ymm15
+
+	vpslldq ymm15 , ymm15 , 1 ; shift to the actua;l strat position of the strings it contains the offset of the written string to start  o fthe string charcters 
 	; extract numbers larger numbers 
 two_line: 
 three_line : 
