@@ -11,6 +11,12 @@
 extern "C" int parse_impl_singleline(void* __restrict__ payload_addr , void* __restrict__ parsed_addr , size_t sz );
 extern "C" int parse_impl_multiline(void* __restrict__  payload_addr , void* __restrict__  parsed_addr , size_t sz );
 
+enum class Parser_target{
+	SINGLELINE , 
+	MULTILINE , 
+	ALL
+};
+template < Parser_target T>
 class alignas(64) FIX_Payload_Parser{
 	private : 
 		void* m_payload_addr_; 
@@ -21,8 +27,8 @@ class alignas(64) FIX_Payload_Parser{
 		FIX_Payload_Parser(void* payload_addr ,unsigned char* t_id , size_t sz) noexcept;
 		~FIX_Payload_Parser();
 
-		inline __attribute__((always_inline)) int  parse(){
-			return parse_impl_singleline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
+		static inline __attribute__((always_inline)) int  parse(void* p_addr , void *parsed_addr , size_t  sz ){
+			return parse_impl_singleline(p_addr , parsed_addr , sz); 
 		}
 		inline __attribute__((always_inline)) int  parse_multiline(){
 			return parse_impl_multiline(m_payload_addr_ , m_parsed_addr_ , m_parsed_sz_);
@@ -59,8 +65,9 @@ __attribute__((noinline , cold)) void fail_now(){
 // ==============================================================
 
 
-
-FIX_Payload_Parser::FIX_Payload_Parser(void* payload_addr , unsigned char* t_id , size_t sz ) noexcept{
+template <Parser_target T > 
+FIX_Payload_Parser<T>::FIX_Payload_Parser(void* payload_addr , unsigned char* t_id , size_t sz ) noexcept{
+	if constexpr ((T == Parser_target::ALL) || (T == Parser_target::MULTILINE)){
 	if(payload_addr == nullptr || (sz == 0) ){
 		fail_now();
 	}
@@ -87,10 +94,12 @@ FIX_Payload_Parser::FIX_Payload_Parser(void* payload_addr , unsigned char* t_id 
 	for(size_t i{0} ; i < possible_struct_count ; i += (2ULL * 1024ULL * 1024ULL)){
 		a = *reinterpret_cast<volatile int*>((reinterpret_cast<std::uint8_t*>(m_payload_addr_) + i));		
 	}
-	
+	}	
 }
 
-FIX_Payload_Parser::~FIX_Payload_Parser(){
+
+template <Parser_target T> 
+FIX_Payload_Parser<T>::~FIX_Payload_Parser(){
 	munmap(m_payload_addr_ , m_parsed_sz_); 
 }
 
