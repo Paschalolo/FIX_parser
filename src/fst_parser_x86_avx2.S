@@ -182,7 +182,14 @@ one_line:
 	; Now extarct the values of single byte number
 	vpbroadcastb ymm5  , byte[rsp ] ; hold mask  0x30
 	vpsubb ymm12 , ymm1 , ymm5
-	vpand ymm12 , ymm15  , ymm12 ; Answer is in the ymm12  
+	vpand ymm12 , ymm15  , ymm12 ; Answer is in the ymm12 
+
+	; extract the position for 49 56 and =
+	; free register ymmm10 - ymm15 
+	mov qword[rsp] , 0x0000003D36353934 ; move mask to it 
+	vpbroadcastb 
+
+	; extract numbers larger numbers 
 two_line: 
 three_line : 
 four_line: 
