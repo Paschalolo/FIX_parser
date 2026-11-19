@@ -141,8 +141,8 @@ one_line:
 	
 	; Here we shift the mask to find which masks together
 	 ; move ymm12 by 2 bytes
-	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
-	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+	vpsrldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpsrldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
 	
 	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
 	vpand ymm15 , ymm14 , ymm12 ; mask with = 
@@ -158,8 +158,8 @@ one_line:
 	vpcmpeqb ymm12 , ymm1 , ymm5  
 	vpcmpeqb ymm13 , ymm1 , ymm6 
 
-	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
-	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+	vpsrldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpsrldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
 	
 	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
 	vpand ymm14 , ymm14 , ymm12 ; mask with =
@@ -171,8 +171,8 @@ one_line:
 	vpcmpeqb ymm12 , ymm1 , ymm5  
 	vpcmpeqb ymm13 , ymm1 , ymm6 
 
-	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
-	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+	vpsrldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpsrldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
 
 	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
 	vpand ymm14 , ymm14 , ymm12 ; mask with =
@@ -193,8 +193,8 @@ one_line:
 	vpcmpeqb ymm12 ,  ymm1 , ymm5
 	vpcmpeqb ymm13 , ymm1 , ymm6
 
-	vpslldq ymm12 , ymm12 , 2 ; shift mask 34 by 2 
-	vpslldq ymm13 , ymm13 ,  ; shift mask 39 by 1
+	vpsrldq ymm12 , ymm12 , 2 ; shift mask 34 by 2 
+	vpsrldq ymm13 , ymm13 ,  ; shift mask 39 by 1
 	
 	vpand ymm13 , ymm13 , ymm12 
 	vpand ymm15 , ymm14 , ymm13 ; mask with = ymm14 contains position with it
@@ -206,15 +206,26 @@ one_line:
 	vpcmpeqb ymm12 ,  ymm1 , ymm5
 	vpcmpeqb ymm13 , ymm1 , ymm6
 
-	vpslldq ymm12 , ymm12 , 2 ; shift mask 35 by 2 
-	vpslldq ymm13 , ymm13 ,  ; shift mask 36 by 1
+	vpsrldq ymm12 , ymm12 , 2 ; shift mask 35 by 2 
+	vpsrldq ymm13 , ymm13 , 1 ; shift mask 36 by 1
 
 	vpand ymm13 , ymm13 , ymm12 
 	vpand ymm13 , ymm13 , ymm14 ; ymm14 contains the = mask
 	vpor ymm15 , ymm13 , ymm15
 
-	vpslldq ymm15 , ymm15 , 1 ; shift to the actua;l strat position of the strings it contains the offset of the written string to start  o fthe string charcters 
-	; extract numbers larger numbers 
+	vpsrldq ymm15 , ymm15 , 1 ; shift to the actua;l strat position of the strings it contains the offset of the written string to start  o fthe string charcters
+	
+	; extract numbers larger numbers
+	 ; ymm5 contains a mask of 0x35 and ymm14 contains mask of = 
+	vpcmpeqb ymm12 , ymm1 ,  ymm5 ; mask all fives 
+	vpsrldq ymm13 , ymm12 , 2 ; shift by 1 
+	vpsrldq ymm12 , ymm12 , 1 ; shift by 1 
+
+	vpand ymm13 , ymm12 , ymm13
+	vpand ymm13 , ymm13 , ymm14 ; mask with =
+	vpsrldq ymm13 , ymm13 , 1 ; contains position of stock 
+
+
 two_line: 
 three_line : 
 four_line: 
