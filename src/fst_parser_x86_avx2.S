@@ -70,6 +70,8 @@ parse_impl_single :
 
 	vmovdqa ymm1 , [rdi] ; move first 32 bytes
 
+	vmovdqa ymm3 , [rdi + 32 ] ; move second batch of the cache line reminaing 32 bytes 
+
 	vpcmpeqb ymm2 , ymm1 , ymm0 ; compare bytes to find start of header (0x01)
 
 	vpmovmskb r9 , ymm2 ; mov mask position to r9 
@@ -115,9 +117,72 @@ parse_impl_single :
 	; r10 contians size 
 	;==== align to a 64 bytes 
 	cmp r10 , 490
-	jg cold_path_large 
+	jg cold_path_large
 
-one_line: 
+	; Loop program to finihs in one to two loop iteration for single scalar 
+	; switch statement to jump to corrrect loop stage 
+	; friction point 
+one_line:
+	; say registers containing the 54  , 40 , 35 
+	; 54 = 0x35 , 0x34   40 = 0x34 ,  0x30   35 = 0x33  , 0x35  , = = 0x3D
+	; NOte herre ymm0 - ymm5 is used 
+	; note ymm0 contains buffer string 
+	; ymm12 - ymm15 for hodlign results  
+	mov qword[rsp] , 0x3533303434353D30
+
+	; extracting for 54 
+	vpbroadcastb ymm5  , byte[rsp + 2 ] ; hold mask  0x35 
+	vpbroadcastb ymm6 , byte[rsp + 3 ]; Hold mask  0x34
+	vpbroadcastb ymm7 , byte[rsp + 1] ; Holds mask 0x3D
+
+	vpcmpeqb ymm12 , ymm1 , ymm5  
+	vpcmpeqb ymm13 , ymm1 , ymm6 
+	vpcmpeqb ymm14 , ymm1 , ymm7 
+	
+	; Here we shift the mask to find which masks together
+	 ; move ymm12 by 2 bytes
+	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+	
+	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
+	vpand ymm15 , ymm14 , ymm12 ; mask with = 
+	; might do stuff with the positioning i.e move position to a gpr register
+
+
+	; extracting for 40 
+	
+	vpbroadcastb ymm5  , byte[rsp + 4 ] ; hold mask  0x34 
+	vpbroadcastb ymm6 , byte[rsp + 5 ]; Hold mask  0x30
+	vpbroadcastb ymm7 , byte[rsp + 1] ; Holds mask 0x3D
+
+	vpcmpeqb ymm12 , ymm1 , ymm5  
+	vpcmpeqb ymm13 , ymm1 , ymm6 
+
+	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+	
+	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
+	vpand ymm14 , ymm14 , ymm12 ; mask with =
+	vpor ymm15 , ymm15 , ymm14 ; or the masks together 
+	; extracting for 35 
+	vpbroadcastb ymm5  , byte[rsp + 6 ] ; hold mask  0x33
+	vpbroadcastb ymm6 , byte[rsp + 7]; Hold mask  0x35
+	vpbroadcastb ymm7 , byte[rsp + 1] ; Holds mask 0x3D
+	
+	vpcmpeqb ymm12 , ymm1 , ymm5  
+	vpcmpeqb ymm13 , ymm1 , ymm6 
+
+	vpslldq ymm12 , ymm12 , 2 ; shift those bytes by 2 to be inline with = to check 
+	vpslldq ymm13 , ymm13 , 1  ; shift the masked values by 1 to be in line with = to check 
+
+	vpand ymm12 , ymm12 , ymm13 ; mask the two values 
+	vpand ymm14 , ymm14 , ymm12 ; mask with =
+	vpor ymm15 , ymm15 , ymm14 ; or the masks together
+
+	; Now extarct the values of single byte number
+	vpbroadcastb ymm5  , byte[rsp ] ; hold mask  0x30
+	vpsubb ymm12 , ymm1 , ymm5
+	vpand ymm12 , ymm15  , ymm12 ; Answer is in the ymm12  
 two_line: 
 three_line : 
 four_line: 
