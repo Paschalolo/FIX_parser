@@ -1,0 +1,4 @@
+
+will reqirte in intrinsics 
+and normal scalalr code 
+and arm64 vecotr instructions
