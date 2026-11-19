@@ -43,6 +43,7 @@ struct alignas(64) parsed_data{
 	std::uint8_t m_side;
 	std::uint8_t m_order_type;
 	std::uint8_t m_msg_type ;
+	std::uint8_t m_parse_status ;
 };
 
 constexpr size_t PARSED_DATA_SZ = sizeof(parsed_data);

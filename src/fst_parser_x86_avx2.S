@@ -47,7 +47,8 @@ global parse_impl_singleline
 ; input_buf -> rdi , output_buf -> rsi  ,  sz -> rdx 
 parse_impl_singleline1:
 	mov rbp , rsp 
-	sub rsp , 16 
+	sub rsp , 16 ts: 6, done.
+Counting objects: 10
 	mov qword[rsp] , 0x0101010101010101
 	vpbroadcastq ymm0 , qword[rsp] 
 
@@ -224,8 +225,43 @@ one_line:
 	vpand ymm13 , ymm12 , ymm13
 	vpand ymm13 , ymm13 , ymm14 ; mask with =
 	vpsrldq ymm13 , ymm13 , 1 ; contains position of stock 
+	; 44 princing extract it and do it in xmm regitser before writing back
+	; This is for pricing
+	
+	mov qword[rsp] , 0x343D  ; move mask to it 
+	vpbroadcastb ymm5 , byte[rsp +  1 ] ; broadcast mask 0x34 
+	vpbroadcastb ymm7 , byte[rsp  ] ; broadcast mask '='
+
+	vpand ymm14 , ymm1 , ymm7 ; check reduduant might have been done before 
+	vpand ymm12 , ymm1 , ymm5 ; mask all aperance of 0x34 
+	vpsrldq ymm13 , ymm12 , 2 ; move mask to 2 bytes right 
+	vpsrldq ymm12 , ymm12 , 1 ; move mask 1 byte right 
+
+	vpand ymm13 , ymm13 , ymm12 ; mask to see whihc position aligns 
+	vpand ymm13 , ymm13 , ymm14  ; see which have the position  
+	vpsrldq ymm13 , ymm13 , 1 ; move mask 1 byte right
+	
+	; check flow of genral purpose setup
+	vpmovmskb r8d , ymm13
+	lzcnt eax , r8d
+	lea rax , [rax +  1 ]
+	 ; remember to check if zero use brancheless 
+	 ; if zero 
+	mov r8 , qword[rdi + rax] ; move mantissa 
+	mov rcx , 0x2E2E2E2E2E2E2E2E ; mask for '.' 
+	and rcx , r8 
+	lzcnt rcx , rcx
+	mov r8 , rcx 
+	add rcx , rax 
+	add rax , 9 
+	cmp r8d , 32
+	cmovne  rax , rcx 
+	
+	mov r9 , qword[rdi + rax ] ; move exponent
+	; extarcting word in r8 and r9
 
 
+	; finding 38 , 34 
 two_line: 
 three_line : 
 four_line: 
@@ -238,9 +274,11 @@ resync_scan :
 end : 
 	add rsp , 16
 	mov rsp , rbp
+	vzeroupper 
 	ret 
 
 cold_path_large : 
 	mov rax , -1 
+	vzeroupper 
 	ret 
 section .note.GNU-stack noalloc noexec nowrite progbits
