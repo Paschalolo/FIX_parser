@@ -1,4 +1,4 @@
-
+remember to align hot code to its own hot page to avoid any issues and itlb misses  
 will reqirte in intrinsics 
 and normal scalalr code 
 and arm64 vecotr instructions
